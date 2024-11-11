@@ -149,6 +149,56 @@ export async function putStats(stats) {
 
 // Main
 const UrlList: { [key: string]: string[] } = {
+  S21: [
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-grau-ohne-vertrag/15ad458f-c997-4391-ac91-0fa85a007129",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-violett-ohne-vertrag/fd4f9fe1-4a9a-41d6-8148-87c35ea48d76",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-rosa-ohne-vertrag/0160b922-998d-463f-9585-8278c47951c9",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-wei-ohne-vertrag/43d88eec-a61e-469f-8a1d-b0d83ac0ac60",
+    // Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-schwarz-ohne-vertrag/def07f81-1faf-4c43-aeec-5aa47e2340b8",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-grau-ohne-vertrag/e96c97b5-2dec-4218-972a-dfd967979e49",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-violett-ohne-vertrag/0400edf2-3e52-44e0-97b6-e2a5df70cbe4",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-rosa-ohne-vertrag/8684370c-e189-4bd9-a539-38b2e72b2b70",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-wei-ohne-vertrag/e69acc05-cb27-40fa-bfad-0a888539608a",
+    // New Battery
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-grau-ohne-vertrag/15ad458f-c997-4391-ac91-0fa85a007129",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-violett-ohne-vertrag/fd4f9fe1-4a9a-41d6-8148-87c35ea48d76",
+    // New Battery, Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-violett-ohne-vertrag/0400edf2-3e52-44e0-97b6-e2a5df70cbe4",
+    // 256 GB
+    "https://www.backmarket.de/de-de/p/samsung-samsung-galaxy-s21-256-gb-schwarz-ohne-vertrag/dd017ee0-5706-4b77-b720-4d90c1dcd1ad",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-violett-ohne-vertrag/72717b0c-673a-48b8-a939-35d1b936ce3b",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-wei-ohne-vertrag/6a79cd0c-c036-4e1a-a78c-78b2488dea3c",
+    // 256 GB, Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-grau-ohne-vertrag/98d2bbe4-f6ff-499f-968e-963d4fdea0ae",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-violett-ohne-vertrag/07a58360-13a5-4a48-ac5c-0f9cce851538",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-ohne-vertrag/75320cb3-89a0-47b3-b418-4c2a05718dd7",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-wei-ohne-vertrag/35e5898f-7d25-4ffc-aa47-ce2b43a445ca",
+    // New Battery, 256 GB
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-grau-ohne-vertrag/a03920b8-fed3-4668-a553-4a2da4b57cf8",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-256-gb-violett-ohne-vertrag/72717b0c-673a-48b8-a939-35d1b936ce3b",
+  ],
+  "S21 FE": [
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-grau-ohne-vertrag/1cc9e2d8-5763-46d5-9901-fcd072ae6eaf",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-grun-ohne-vertrag/0c89efae-a70c-499a-9dae-0f38bd37dcd0",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-wei-ohne-vertrag/ccaaf8dd-20d3-4f9f-beda-9906d3587b9b",
+    // New Battery
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-grau-ohne-vertrag/1cc9e2d8-5763-46d5-9901-fcd072ae6eaf",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-grun-ohne-vertrag/0c89efae-a70c-499a-9dae-0f38bd37dcd0",
+    // New Battery, Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-grau-ohne-vertrag/fad76df6-b05d-4396-bedf-e84fde7bc197",
+    // Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-schwarz-ohne-vertrag/a9881f77-53b5-40fe-aec7-8f679b54e56b",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-grun-ohne-vertrag/48b64129-c684-4662-ae84-38746b50c51b",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-lavendel-ohne-vertrag/e41d0cc8-e1d3-49df-ba77-953e1d562fc7",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-128-gb-wei-ohne-vertrag/58f90ccc-1ada-41b7-8e45-6090f989d263",
+    // 256 GB
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-256-gb-violett-ohne-vertrag/65becb7a-ccea-429c-9f69-456d15dbc030",
+    // 256 GB, Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-256-gb-schwarz-ohne-vertrag/b11fe636-6e18-4c87-8f80-13cd75c61f04",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-256-gb-grun-ohne-vertrag/2a3198f8-68fa-4d42-a796-414e6f9a5f34",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-fe-5g-256-gb-violett-ohne-vertrag/a1b67f95-9e1d-4d0b-a955-7b86b1963c35",
+  ],
   "S21 Ultra": [
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-silber-ohne-vertrag/9acced0c-c132-4e94-8ef4-56bd2f786de0",
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-schwarz-midgnight-black-ohne-vertrag/eb82c373-e060-4ef3-b246-1f6564ebd8b7",
@@ -208,6 +258,37 @@ const UrlList: { [key: string]: string[] } = {
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-256-gb-ohne-vertrag/64317a29-053d-4491-a27d-6a7e11d6aff1",
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-grun-ohne-vertrag/b3aad73b-302b-4227-bc0a-b95881a65431",
     "https://www.backmarket.de/de-de/p/samsung-f-sm-s908bzwge-256-gb-wei-ohne-vertrag/2b276902-b7a7-4306-9fbd-5d014254e048",
+  ],
+  S23: [
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-schwarz-midgnight-black-ohne-vertrag/3bd83a62-d359-44b0-b61d-481ae6f75710?",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-creme-ohne-vertrag/37d77445-ff1f-4389-bcda-428ba60c7b7f",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-grun-ohne-vertrag/ba699712-9c9b-46dc-bafa-058388a179ed",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-lavendel-ohne-vertrag/20cc417d-5133-4e7e-aa75-8812d72664c4",
+    // Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-schwarz-midgnight-black-ohne-vertrag/5cc62834-27e7-40ce-a319-63a13e7d185f",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-creme-ohne-vertrag/5bbb3747-231c-4cda-838c-4f9fb553dac4",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-grun-ohne-vertrag/60267589-8498-4120-86c4-1e0bdc8e3424",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-128-gb-lavendel-ohne-vertrag/4a71b010-3770-48b2-99e4-1ccde3d8f431",
+    // 256 GB, Dual
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-256-gb-schwarz-ohne-vertrag/86bc791d-30d3-4fdb-a62d-b8b3bedad57d",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-256-gb-schwarz-ohne-vertrag/0db149f9-ad61-46c0-9549-d8885cf041e2",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-256-gb-creme-ohne-vertrag/10b7af26-cf09-4629-a8cf-0e135d502bae",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-256-gb-grun-ohne-vertrag/66a66010-5440-44e1-8f2a-d506e3a71fac",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-256-gb-lavendel-ohne-vertrag/71527a96-b49c-45de-a922-b82c2c9126f3",
+    // 256 GB
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s23-256-gb-schwarz-ohne-vertrag/13c21550-424e-4406-9641-e790f5f40e0d",
+    "https://www.backmarket.de/de-de/p/samsung-s23-256-gb-ohne-vertrag/e09f7b03-0e6f-4739-94e7-ecd0ad4e6c83",
+  ],
+  S24: [
+    "https://www.backmarket.de/de-de/p/samsung-gb/0e2f3561-74bb-40c9-8bcf-030e29c2a8cc",
+    "https://www.backmarket.de/de-de/p/samsung-gb/5741e181-e983-4c00-a801-91eee76a34ac",
+    "https://www.backmarket.de/de-de/p/samsung-gb/57995970-a1be-4f99-bdc6-edc3d27f0b5d",
+    // Dual
+    "https://www.backmarket.de/de-de/p/samsung-gb/02162ae4-dcff-4b8f-ae62-bb7296d82f9d",
+    "https://www.backmarket.de/de-de/p/samsung-gb/1ca0d727-ca7b-4692-b4ca-fb18aba7feb4",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s24-128-gb-blau-ohne-vertrag/26bd3b61-5444-4a12-9635-775923417f2e",
+    "https://www.backmarket.de/de-de/p/samsung-gb/9ed45eb4-97ef-48b3-ad8f-cddd66a86ebd",
+    "https://www.backmarket.de/de-de/p/samsung-gb/62e1c2b8-8e2c-45f5-a519-1efad9f5ba2e",
   ],
 };
 
@@ -296,9 +377,9 @@ export async function handler(
   }
 
   if (data.includes("bot-need-challenge")) {
-    log.warn("Bot detected, cooling off for 5 minutes.");
-    await timeout(300000);
-    await handler(id, url, dataOverwrite);
+    log.warn("Bot detected, cooling off for 15 minutes.");
+    await timeout(900000);
+    return await handler(id, url, dataOverwrite);
   }
 
   const pageId = url.split("/").pop();
@@ -324,6 +405,12 @@ export async function handler(
     }
 
     return;
+  }
+
+  if (title.includes("Oh Oh ... da ist wohl etwas schief gelaufen")) {
+    log.warn("Error happend, waiting 5 minutes");
+    await timeout(300000);
+    return await handler(id, url, dataOverwrite);
   }
 
   if (qualityEls) {
@@ -361,7 +448,17 @@ export async function handler(
     log.error(
       `${pageId} ${title} ❌ No quality found ${qualityEls} (${t2 - t1} ms)`
     );
-    log.debug(data);
+
+    if (!dataOverwrite) {
+      await Deno.writeTextFile(
+        import.meta.dirname +
+          `/debug/no-quality-found-${`${timestamp}-${url}`.replace(
+            /\W/g,
+            "-"
+          )}.html`,
+        data
+      );
+    }
   }
 }
 
@@ -382,6 +479,7 @@ export async function main() {
     const urls = UrlList[product];
 
     for (const url of urls) {
+      await timeout(200);
       const data = await handler(product, url);
       if (data) {
         history.push(data);
@@ -394,6 +492,5 @@ export async function main() {
   }
 
   const t2 = performance.now();
-
   log.debug(`Done. This took ${Math.round((t2 - t1) / 1000)} s. Waiting...`);
 }
