@@ -96,7 +96,7 @@ async function timeout(ms: number) {
 }
 
 function getEuros(input: string): string | undefined {
-  return input.match(/[\d,]/g)?.join("");
+  return String(Math.ceil(Number(input.match(/[\d,]/g)?.join(""))));
 }
 
 async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
@@ -108,7 +108,7 @@ async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
     await timeout(2000);
     await Deno.writeTextFile(
       fileName,
-      stringify([], { columns, separator: ";" }),
+      stringify([], { columns, separator: ";" })
     );
     return await getCsv(fileName, columns);
   }
@@ -116,7 +116,7 @@ async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
 async function putCsv(
   fileName: string,
   data: Record<string, unknown>[],
-  columns?: StringifyOptions["columns"],
+  columns?: StringifyOptions["columns"]
 ) {
   await Deno.writeTextFile(
     fileName,
@@ -124,23 +124,23 @@ async function putCsv(
       columns,
       headers: false,
       separator: ";",
-    }),
+    })
   );
 }
 
 // Main
 const UrlList: { [key: string]: string[] } = {
   "S21 Ultra": [
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-silber-ohne-vertrag/9acced0c-c132-4e94-8ef4-56bd2f786de0?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-schwarz-midgnight-black-ohne-vertrag/eb82c373-e060-4ef3-b246-1f6564ebd8b7?l=12&offerType=0#scroll=false",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-silber-ohne-vertrag/9acced0c-c132-4e94-8ef4-56bd2f786de0",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-schwarz-midgnight-black-ohne-vertrag/eb82c373-e060-4ef3-b246-1f6564ebd8b7",
 
     // Dual
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-schwarz-ohne-vertrag/baaa71ad-a044-4422-9820-bf05d5cb3d9f?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-sm-g998b-128-gb-ohne-vertrag/414a005b-b279-4bc4-a6d3-d71be36975c9?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-grau-ohne-vertrag/07b21051-8c2e-4dfb-a8db-550e034ba150?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-dual-sim-128-gb-silber-ohne-vertrag/efaa295c-b0d3-4f7a-bb46-d0a4ac74a00d?l=12&offerType=0#scroll=false",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-schwarz-ohne-vertrag/baaa71ad-a044-4422-9820-bf05d5cb3d9f",
+    "https://www.backmarket.de/de-de/p/samsung-sm-g998b-128-gb-ohne-vertrag/414a005b-b279-4bc4-a6d3-d71be36975c9",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-128-gb-grau-ohne-vertrag/07b21051-8c2e-4dfb-a8db-550e034ba150",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-ultra-5g-dual-sim-128-gb-silber-ohne-vertrag/efaa295c-b0d3-4f7a-bb46-d0a4ac74a00d",
   ],
-  "S22": [
+  S22: [
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-128-gb-ohne-vertrag/b12fbd31-2d50-4762-ab43-2c9b60475aa6",
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-5g-128-gb-grau-ohne-vertrag/dd462e1e-1dcc-40e0-818d-f9358c5e1459",
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-5g-128-gb-grun-ohne-vertrag/576047be-aeb2-4093-8e53-2e9de49132c7",
@@ -177,8 +177,8 @@ const UrlList: { [key: string]: string[] } = {
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-5g-256-gb-wei-ohne-vertrag/8b2ef740-153c-4a98-a334-c9139043b903",
   ],
   "S22 Ultra": [
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-128-gb-schwarz-ohne-vertrag/ebe9c3fe-bc6a-4655-ba31-091ba6888ea4?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-128-gb-wei-ohne-vertrag/90c2fb25-130f-47a5-8f32-4505d939f747?l=12&offerType=0#scroll=false",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-128-gb-schwarz-ohne-vertrag/ebe9c3fe-bc6a-4655-ba31-091ba6888ea4",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-128-gb-wei-ohne-vertrag/90c2fb25-130f-47a5-8f32-4505d939f747",
 
     // Dual
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-128-gb-schwarz-ohne-vertrag/ebec5e0e-c64f-4160-9ac7-473781564600",
@@ -187,13 +187,13 @@ const UrlList: { [key: string]: string[] } = {
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-128-gb-wei-ohne-vertrag/c7654210-fae5-4b8a-b77c-d43a3cf19c32",
 
     // 256 GB
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-schwarz-ohne-vertrag/09cd8103-206c-4750-88cc-4e4754cf43cc?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-rot-burgundy-red-ohne-vertrag/f6af9b7b-1787-4411-81de-da8fc4a0361b?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-grun-ohne-vertrag/7bf1bcc0-2551-4b70-9f27-7e3ba27d1475?l=12&offerType=0#scroll=false",
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-wei-ohne-vertrag/d8e5a2b2-e959-4588-bc7b-b03e84812093?l=12&offerType=0#scroll=false",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-schwarz-ohne-vertrag/09cd8103-206c-4750-88cc-4e4754cf43cc",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-rot-burgundy-red-ohne-vertrag/f6af9b7b-1787-4411-81de-da8fc4a0361b",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-grun-ohne-vertrag/7bf1bcc0-2551-4b70-9f27-7e3ba27d1475",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-wei-ohne-vertrag/d8e5a2b2-e959-4588-bc7b-b03e84812093",
 
     // 256 GB, Dual
-    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-schwarz-ohne-vertrag/09b7cb66-2646-463e-932c-8833de286fd6?",
+    "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-schwarz-ohne-vertrag/09b7cb66-2646-463e-932c-8833de286fd6",
     "https://www.backmarket.de/de-de/p/samsung-sm-s908ds-256-gb-ohne-vertrag/dc6fdc40-3ebb-45b7-9579-264c581238dd",
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-256-gb-ohne-vertrag/64317a29-053d-4491-a27d-6a7e11d6aff1",
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s22-ultra-5g-256-gb-grun-ohne-vertrag/b3aad73b-302b-4227-bc0a-b95881a65431",
@@ -226,7 +226,7 @@ function checkAndMakeStats(history: IItem[]): IStats[] {
 
     const getLowestValue = (quality: keyof IItem) => {
       const minEntry = entries.reduce((min, entry) =>
-        (entry[quality]) < (min[quality]) ? entry : min
+        entry[quality] < min[quality] ? entry : min
       );
       return {
         value: minEntry[quality],
@@ -267,14 +267,10 @@ function checkAndMakeStats(history: IItem[]): IStats[] {
 }
 
 async function handler(id: string, url: string): Promise<IItem | undefined> {
-  const res = await fetch(
-    url,
-  );
-
+  const res = await fetch(url);
   const data = await res.text();
-  await timeout(200);
+  const pageId = url.split("/").pop();
   const doc = new DOMParser().parseFromString(data, "text/html");
-  await timeout(200);
   const qualityEls = doc.querySelector(queryQuality)?.children;
   const title = doc.querySelector(".heading-1")?.innerText;
 
@@ -309,7 +305,7 @@ async function handler(id: string, url: string): Promise<IItem | undefined> {
     out.hervorragend = amounts[2];
     out.premium = amounts[3];
 
-    log.debug(`${out.timestamp} ${url} ✅`);
+    log.debug(`${out.timestamp} ${pageId} ${title} ✅`);
     return out as IItem;
   } else {
     log.error(`No quality found ${qualityEls}`);
@@ -317,6 +313,7 @@ async function handler(id: string, url: string): Promise<IItem | undefined> {
 }
 
 export async function main() {
+  const timerStart = performance.now();
   log.debug("Booting up");
 
   const history = await getCsv(historyFileName, itemColumns);
@@ -325,18 +322,28 @@ export async function main() {
   for (const product of Object.keys(UrlList)) {
     const urls = UrlList[product];
 
-    const toPromise = urls.map((url) => handler(product, url));
-    const data = await Promise.all(toPromise);
-    history.push(...(data.filter((d) => !!d)));
+    for (const url of urls) {
+      const data = await handler(product, url);
+      if (data) {
+        history.push(data);
+      }
+    }
 
-    stats = [
-      ...stats.slice(0, 1),
-      ...checkAndMakeStats(history.slice(1)),
-    ];
+    // const toPromise = urls.map((url) => handler(product, url));
+    // const data = await Promise.all(toPromise);
+    // history.push(...data.filter((d) => !!d));
+
+    stats = [...stats.slice(0, 1), ...checkAndMakeStats(history.slice(1))];
   }
 
   await putCsv(historyFileName, history, itemColumns);
   await putCsv(statsFileName, stats, statsColumns);
 
-  log.debug("Done");
+  const timerStop = performance.now();
+
+  log.debug(
+    `Done. This took ${Math.round(
+      (timerStop - timerStart) / 60
+    )} seconds. Waiting...`
+  );
 }

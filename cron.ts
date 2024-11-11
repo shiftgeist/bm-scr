@@ -1,7 +1,5 @@
 import { main } from "./main.ts";
 
-Deno.cron(
-  "scrape",
-  { minute: { every: 30 } },
-  () => main(),
-);
+main();
+
+Deno.cron("scrape", { minute: { every: 10 } }, () => main());
