@@ -96,7 +96,10 @@ async function timeout(ms: number) {
 }
 
 function getEuros(input: string): string | undefined {
-  return String(Math.ceil(Number(input.match(/[\d,]/g)?.join(""))));
+  const out = Math.round(
+    Number(input.match(/[\d,]/g)?.join("").replace(",", "."))
+  );
+  return String(out);
 }
 
 async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
@@ -205,10 +208,10 @@ function checkAndMakeStats(history: IItem[]): IStats[] {
   // Convert values to numbers and merge arrays
   const data = history.map((item) => ({
     ...item,
-    gut: parseFloat(item.gut.replace(",", ".")),
-    sehr_gut: parseFloat(item.sehr_gut.replace(",", ".")),
-    hervorragend: parseFloat(item.hervorragend.replace(",", ".")),
-    premium: parseFloat(item.premium.replace(",", ".")),
+    gut: parseInt(item.gut),
+    sehr_gut: parseInt(item.sehr_gut),
+    hervorragend: parseInt(item.hervorragend),
+    premium: parseInt(item.premium),
   }));
 
   // Define groupedData with a specific type to avoid implicit any errors
