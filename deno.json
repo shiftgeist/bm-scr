@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-all dev.ts",
+    "cron": "deno run --unstable-cron --allow-write --allow-read --allow-net cron.ts"
+  }
+}
