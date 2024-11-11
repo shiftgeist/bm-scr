@@ -6,7 +6,7 @@ import { parse, ParseOptions, stringify, StringifyOptions } from "jsr:@std/csv";
 const queryQuality =
   ".pt-0.md\\:pt-24.py-72.md\\:py-36 .grid.grid-cols-2.gap-x-12.list-none";
 const statsFileName = "stats.csv";
-const historyFileName = "sheet.csv";
+const historyFileName = "history.csv";
 const itemColumns = [
   "id",
   "url",
@@ -22,10 +22,10 @@ interface IItem {
   url: string;
   name: string;
   timestamp: string;
-  gut: string;
-  sehr_gut: string;
-  hervorragend: string;
-  premium: string;
+  gut?: string;
+  sehr_gut?: string;
+  hervorragend?: string;
+  premium?: string;
 }
 
 const statsColumns = [
@@ -87,10 +87,6 @@ log.setup({
       level: "DEBUG",
       handlers: ["console", "file"],
     },
-    tasks: {
-      level: "ERROR",
-      handlers: ["console"],
-    },
   },
 });
 
@@ -133,6 +129,22 @@ async function putCsv(
       separator: ";",
     })
   );
+}
+
+export async function getHistory() {
+  return await getCsv(historyFileName, itemColumns);
+}
+
+export async function getStats() {
+  return await getCsv(statsFileName, statsColumns);
+}
+
+export async function putHistory(history) {
+  await putCsv(historyFileName, history, itemColumns);
+}
+
+export async function putStats(stats) {
+  await putCsv(statsFileName, stats, statsColumns);
 }
 
 // Main
@@ -199,14 +211,14 @@ const UrlList: { [key: string]: string[] } = {
   ],
 };
 
-function checkAndMakeStats(history: IItem[]): IStats[] {
+export function checkAndMakeStats(history: IItem[]): IStats[] {
   // Convert values to numbers and merge arrays
   const data = history.map((item) => ({
     ...item,
-    gut: parseInt(item.gut),
-    sehr_gut: parseInt(item.sehr_gut),
-    hervorragend: parseInt(item.hervorragend),
-    premium: parseInt(item.premium),
+    gut: item.gut ? parseInt(item.gut) : undefined,
+    sehr_gut: item.sehr_gut ? parseInt(item.sehr_gut) : undefined,
+    hervorragend: item.hervorragend ? parseInt(item.hervorragend) : undefined,
+    premium: item.premium ? parseInt(item.premium) : undefined,
   }));
 
   // Define groupedData with a specific type to avoid implicit any errors
@@ -219,13 +231,12 @@ function checkAndMakeStats(history: IItem[]): IStats[] {
   }, {});
 
   // Get the lowest values for each id along with timestamp, name, and url, formatted for CSV
-  const lowestValues = Object.keys(groupedData).map((id) => {
-    const entries = groupedData[id];
-
+  const lowestValues = Object.entries(groupedData).map(([id, entries]) => {
     const getLowestValue = (quality: keyof IItem) => {
       const minEntry = entries.reduce((min, entry) =>
         entry[quality] < min[quality] ? entry : min
       );
+
       return {
         value: minEntry[quality],
         timestamp: minEntry.timestamp,
@@ -234,7 +245,7 @@ function checkAndMakeStats(history: IItem[]): IStats[] {
       };
     };
 
-    return {
+    const out = {
       id,
       url: entries[0].url, // Use the URL of the first entry for the ID
 
@@ -259,6 +270,8 @@ function checkAndMakeStats(history: IItem[]): IStats[] {
       premium_name: getLowestValue("premium").name,
       premium_url: getLowestValue("premium").url,
     };
+
+    return out;
   });
 
   return lowestValues;
@@ -269,6 +282,7 @@ export async function handler(
   url: string,
   dataOverwrite?: string
 ): Promise<IItem | undefined> {
+  const t1 = performance.now();
   let data = dataOverwrite;
 
   if (!dataOverwrite) {
@@ -281,6 +295,12 @@ export async function handler(
     return;
   }
 
+  if (data.includes("bot-need-challenge")) {
+    log.warn("Bot detected, cooling off for 5 minutes.");
+    await timeout(300000);
+    await handler(id, url, dataOverwrite);
+  }
+
   const pageId = url.split("/").pop();
   const doc = new DOMParser().parseFromString(data, "text/html");
   const qualityEls = doc.querySelector(queryQuality)?.children;
@@ -290,7 +310,7 @@ export async function handler(
   const timestamp = new Date().toISOString();
 
   if (!title) {
-    log.warn(`No title found for ${url}`);
+    log.warn(`No title found for ${url} ${data}`);
 
     if (!dataOverwrite) {
       await Deno.writeTextFile(
@@ -321,11 +341,11 @@ export async function handler(
 
       if (!amount) {
         // Ausverkauft
-        log.warn(`No amount (${quality.innerText}) found for ${url}`);
-        return;
+        const t2 = performance.now();
+        log.debug(`${pageId} ${title} 🟠 ${quality.innerText} (${t2 - t1} ms)`);
+      } else {
+        amounts.push(amount);
       }
-
-      amounts.push(amount);
     }
 
     out.gut = amounts[0];
@@ -333,15 +353,20 @@ export async function handler(
     out.hervorragend = amounts[2];
     out.premium = amounts[3];
 
-    log.debug(`${out.timestamp} ${pageId} ${title} ✅`);
+    const t2 = performance.now();
+    log.debug(`${pageId} ${title} ✅ (${t2 - t1} ms)`);
     return out as IItem;
   } else {
-    log.error(`No quality found ${qualityEls}`);
+    const t2 = performance.now();
+    log.error(
+      `${pageId} ${title} ❌ No quality found ${qualityEls} (${t2 - t1} ms)`
+    );
+    log.debug(data);
   }
 }
 
 export async function main() {
-  const timerStart = performance.now();
+  const t1 = performance.now();
   log.debug("Booting up");
 
   try {
@@ -350,35 +375,25 @@ export async function main() {
     await Deno.mkdir(import.meta.dirname + "/debug/");
   }
 
-  const history = await getCsv(historyFileName, itemColumns);
-  let stats = await getCsv(statsFileName, statsColumns);
+  const history = await getHistory();
+  let stats = await getStats();
 
   for (const product of Object.keys(UrlList)) {
     const urls = UrlList[product];
 
     for (const url of urls) {
-      await timeout(500);
       const data = await handler(product, url);
       if (data) {
         history.push(data);
+        await putHistory(history);
       }
     }
 
-    // const toPromise = urls.map((url) => handler(product, url));
-    // const data = await Promise.all(toPromise);
-    // history.push(...data.filter((d) => !!d));
-
     stats = [...stats.slice(0, 1), ...checkAndMakeStats(history.slice(1))];
+    await putStats(stats);
   }
 
-  await putCsv(historyFileName, history, itemColumns);
-  await putCsv(statsFileName, stats, statsColumns);
+  const t2 = performance.now();
 
-  const timerStop = performance.now();
-
-  log.debug(
-    `Done. This took ${Math.round(
-      (timerStop - timerStart) / 60
-    )} seconds. Waiting...`
-  );
+  log.debug(`Done. This took ${Math.round((t2 - t1) / 1000)} s. Waiting...`);
 }

@@ -4,13 +4,16 @@
     "specifiers": {
       "jsr:@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@0.1.48",
       "jsr:@psych/sheet": "jsr:@psych/sheet@1.0.1",
+      "jsr:@std/assert": "jsr:@std/assert@1.0.7",
       "jsr:@std/bytes@^1.0.3": "jsr:@std/bytes@1.0.3",
       "jsr:@std/csv": "jsr:@std/csv@1.0.3",
       "jsr:@std/fmt@^1.0.2": "jsr:@std/fmt@1.0.3",
       "jsr:@std/fs@^1.0.4": "jsr:@std/fs@1.0.5",
+      "jsr:@std/internal@^1.0.5": "jsr:@std/internal@1.0.5",
       "jsr:@std/io@^0.225.0": "jsr:@std/io@0.225.0",
       "jsr:@std/log": "jsr:@std/log@0.224.9",
       "jsr:@std/streams@^1.0.4": "jsr:@std/streams@1.0.8",
+      "jsr:@std/testing": "jsr:@std/testing@1.0.4",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:hyparquet@1.5.0": "npm:hyparquet@1.5.0"
     },
@@ -22,6 +25,12 @@
         "integrity": "92e92c33108fbc8523acd5fe6abaf2126ba32f912ddcce95a35c1efd12e2b9b1",
         "dependencies": [
           "npm:hyparquet@1.5.0"
+        ]
+      },
+      "@std/assert@1.0.7": {
+        "integrity": "64ce9fac879e0b9f3042a89b3c3f8ccfc9c984391af19e2087513a79d73e28c3",
+        "dependencies": [
+          "jsr:@std/internal@^1.0.5"
         ]
       },
       "@std/bytes@1.0.3": {
@@ -39,6 +48,9 @@
       "@std/fs@1.0.5": {
         "integrity": "41806ad6823d0b5f275f9849a2640d87e4ef67c51ee1b8fb02426f55e02fd44e"
       },
+      "@std/internal@1.0.5": {
+        "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
+      },
       "@std/io@0.225.0": {
         "integrity": "c1db7c5e5a231629b32d64b9a53139445b2ca640d828c26bf23e1c55f8c079b3"
       },
@@ -55,6 +67,9 @@
         "dependencies": [
           "jsr:@std/bytes@^1.0.3"
         ]
+      },
+      "@std/testing@1.0.4": {
+        "integrity": "ca1368d720b183f572d40c469bb9faf09643ddd77b54f8b44d36ae6b94940576"
       }
     },
     "npm": {
