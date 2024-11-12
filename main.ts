@@ -379,7 +379,9 @@ export async function handler(
   }
 
   if (data.includes("bot-need-challenge")) {
-    log.warn("Bot detected, cooling off for 2 h");
+    log.warn(
+      "Bot detected, cooling off for 2 h. Or goto https://www.backmarket.de/testchallengepage and restart."
+    );
     if (!dataOverwrite) {
       await Deno.writeTextFile(
         import.meta.dirname +
@@ -484,13 +486,16 @@ export async function main(repeat = false) {
   }
 
   const history = await getHistory();
-  let stats = await getStats();
 
   for (const product of Object.keys(UrlList)) {
     const urls = UrlList[product];
 
-    for (const url of urls) {
-      if (repeat) await timeout(60000);
+    for (const [i, url] of urls.entries()) {
+      if (i !== 0 && repeat) {
+        log.debug("1 min cool down");
+        await timeout(60000);
+      }
+
       const data = await handler(product, url);
       if (data) {
         history.push(data);
@@ -498,8 +503,7 @@ export async function main(repeat = false) {
       }
     }
 
-    stats = [...stats.slice(0, 1), ...checkAndMakeStats(history.slice(1))];
-    await putStats(stats);
+    await putStats(checkAndMakeStats(history.slice(1)));
   }
 
   const t2 = performance.now();
