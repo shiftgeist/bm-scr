@@ -1,6 +1,8 @@
 {
   "tasks": {
     "dev": "deno run --watch --allow-all dev.ts",
-    "cron": "deno run --unstable-cron --allow-write --allow-read --allow-net cron.ts"
+    "start": "deno run --allow-write --allow-read --allow-net start.ts",
+    "cron": "deno run --unstable-cron --allow-write --allow-read --allow-net cron.ts",
+    "deploy": "deployctl deploy --entrypoint=./cron.ts --project bm-scr"
   }
 }

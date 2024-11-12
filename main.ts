@@ -365,6 +365,7 @@ export async function handler(
   dataOverwrite?: string
 ): Promise<IItem | undefined> {
   const t1 = performance.now();
+  const timestamp = new Date().toISOString();
   let data = dataOverwrite;
 
   if (!dataOverwrite) {
@@ -379,6 +380,16 @@ export async function handler(
 
   if (data.includes("bot-need-challenge")) {
     log.warn("Bot detected, cooling off for 2 h");
+    if (!dataOverwrite) {
+      await Deno.writeTextFile(
+        import.meta.dirname +
+          `/debug/bot-detected-${`${timestamp}-${url}`.replace(
+            /\W/g,
+            "-"
+          )}.html`,
+        data
+      );
+    }
     await timeout(7200000);
     return await handler(id, url, dataOverwrite);
   }
@@ -389,7 +400,6 @@ export async function handler(
   const title = doc.querySelectorAll(
     `[data-test="container-wrapper"] .heading-1`
   )?.[0]?.innerText;
-  const timestamp = new Date().toISOString();
 
   if (!title) {
     log.warn(`No title found for ${url} ${data}`);
@@ -463,7 +473,7 @@ export async function handler(
   }
 }
 
-export async function main() {
+export async function main(repeat = false) {
   const t1 = performance.now();
   log.debug("Booting up");
 
@@ -480,7 +490,7 @@ export async function main() {
     const urls = UrlList[product];
 
     for (const url of urls) {
-      await timeout(200);
+      if (repeat) await timeout(60000);
       const data = await handler(product, url);
       if (data) {
         history.push(data);
@@ -493,5 +503,13 @@ export async function main() {
   }
 
   const t2 = performance.now();
-  log.debug(`Done. This took ${Math.round((t2 - t1) / 1000)} s. Waiting...`);
+  log.debug(
+    `Done. This took ${Math.round((t2 - t1) / 1000)} s. ${
+      repeat ? "" : "Waiting..."
+    }`
+  );
+
+  if (repeat) {
+    main(true);
+  }
 }
