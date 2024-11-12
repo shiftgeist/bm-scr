@@ -104,6 +104,7 @@ function getEuros(input: string): string | undefined {
 
 async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
   try {
+    await Deno.readFile(fileName);
     const res = await Deno.readTextFile(fileName);
     return parse(res, { columns, separator: ";" });
   } catch (error) {
