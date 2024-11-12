@@ -377,8 +377,8 @@ export async function handler(
   }
 
   if (data.includes("bot-need-challenge")) {
-    log.warn("Bot detected, cooling off for 15 minutes.");
-    await timeout(900000);
+    log.warn("Bot detected, cooling off for 2 h");
+    await timeout(7200000);
     return await handler(id, url, dataOverwrite);
   }
 
@@ -408,7 +408,7 @@ export async function handler(
   }
 
   if (title.includes("Oh Oh ... da ist wohl etwas schief gelaufen")) {
-    log.warn("Error happend, waiting 5 minutes");
+    log.warn("Error happend, cooling off for 5 minutes");
     await timeout(300000);
     return await handler(id, url, dataOverwrite);
   }
