@@ -1,4 +1,4 @@
-import { main } from "./main.ts";
+import { main } from "../lib/main.ts";
 
 main();
 

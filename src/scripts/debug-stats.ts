@@ -1,4 +1,9 @@
-import { checkAndMakeStats, getHistory, getStats, putStats } from "./main.ts";
+import {
+  checkAndMakeStats,
+  getHistory,
+  getStats,
+  putStats,
+} from "../lib/main.ts";
 import { assertNotEquals } from "jsr:@std/assert";
 
 const history = await getHistory();

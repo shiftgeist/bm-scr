@@ -1,22 +1,15 @@
-import { DOMParser } from "jsr:@b-fuze/deno-dom";
+import { DOMParser, type HTMLCollection } from "jsr:@b-fuze/deno-dom";
 import * as log from "jsr:@std/log";
-import { parse, ParseOptions, stringify, StringifyOptions } from "jsr:@std/csv";
+import { resolve } from "jsr:@std/path";
+import {
+  DataItem,
+  parse,
+  ParseOptions,
+  stringify,
+  StringifyOptions,
+} from "jsr:@std/csv";
 
-// Constants
-const queryQuality =
-  ".pt-0.md\\:pt-24.py-72.md\\:py-36 .grid.grid-cols-2.gap-x-12.list-none";
-const statsFileName = "stats.csv";
-const historyFileName = "history.csv";
-const itemColumns = [
-  "id",
-  "url",
-  "name",
-  "timestamp",
-  "gut",
-  "sehr_gut",
-  "hervorragend",
-  "premium",
-];
+// Types
 interface IItem {
   id: string;
   url: string;
@@ -28,25 +21,6 @@ interface IItem {
   premium?: string;
 }
 
-const statsColumns = [
-  "id",
-  "gut",
-  "gut_timestamp",
-  "gut_name",
-  "gut_url",
-  "sehr_gut",
-  "sehr_gut_timestamp",
-  "sehr_gut_name",
-  "sehr_gut_url",
-  "hervorragend",
-  "hervorragend_timestamp",
-  "hervorragend_name",
-  "hervorragend_url",
-  "premium",
-  "premium_timestamp",
-  "premium_name",
-  "premium_url",
-];
 interface IStats {
   id: string;
   url: string;
@@ -68,88 +42,49 @@ interface IStats {
   premium_url: string;
 }
 
-// Setup
-const logFormatter: log.FormatterFunction = (record) =>
-  `${record.datetime.toISOString()}: [${record.levelName}] ${record.msg}`;
+// Constants
+const CONFIG = {
+  queryQuality:
+    ".pt-0.md\\:pt-24.py-72.md\\:py-36 .grid.grid-cols-2.gap-x-12.list-none",
+  statsFileName: "stats.csv",
+  historyFileName: "history.csv",
+  cooldownTime: 60000,
+  botCooldownTime: 7200000,
+  errorCooldownTime: 300000,
+  debugDir: resolve(import.meta.dirname!, "../../debug"),
+} as const;
 
-log.setup({
-  handlers: {
-    console: new log.ConsoleHandler("DEBUG", {
-      formatter: logFormatter,
-    }),
-    file: new log.FileHandler("DEBUG", {
-      filename: "./debug.log",
-      formatter: logFormatter,
-    }),
-  },
-  loggers: {
-    default: {
-      level: "DEBUG",
-      handlers: ["console", "file"],
-    },
-  },
-});
+const itemColumns = [
+  "id",
+  "url",
+  "name",
+  "timestamp",
+  "gut",
+  "sehr_gut",
+  "hervorragend",
+  "premium",
+] as const;
 
-// Helper
-async function timeout(ms: number) {
-  await new Promise((resolve) => setTimeout(resolve, ms));
-}
+const statsColumns = [
+  "id",
+  "gut",
+  "gut_timestamp",
+  "gut_name",
+  "gut_url",
+  "sehr_gut",
+  "sehr_gut_timestamp",
+  "sehr_gut_name",
+  "sehr_gut_url",
+  "hervorragend",
+  "hervorragend_timestamp",
+  "hervorragend_name",
+  "hervorragend_url",
+  "premium",
+  "premium_timestamp",
+  "premium_name",
+  "premium_url",
+] as const;
 
-function getEuros(input: string): string | undefined {
-  const out = String(
-    Math.round(Number(input.match(/[\d,]/g)?.join("").replace(",", ".")))
-  );
-  return out === "NaN" ? undefined : out;
-}
-
-async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
-  try {
-    await Deno.readFile(fileName);
-    const res = await Deno.readTextFile(fileName);
-    return parse(res, { columns, separator: ";" });
-  } catch (error) {
-    log.warn(error);
-    await timeout(2000);
-    await Deno.writeTextFile(
-      fileName,
-      stringify([], { columns, separator: ";" })
-    );
-    return await getCsv(fileName, columns);
-  }
-}
-async function putCsv(
-  fileName: string,
-  data: Record<string, unknown>[],
-  columns?: StringifyOptions["columns"],
-  headers = false
-) {
-  await Deno.writeTextFile(
-    fileName,
-    stringify(data, {
-      columns,
-      headers,
-      separator: ";",
-    })
-  );
-}
-
-export async function getHistory() {
-  return await getCsv(historyFileName, itemColumns);
-}
-
-export async function getStats() {
-  return await getCsv(statsFileName, statsColumns);
-}
-
-export async function putHistory(history) {
-  await putCsv(historyFileName, history, itemColumns);
-}
-
-export async function putStats(stats) {
-  await putCsv(statsFileName, stats, statsColumns, true);
-}
-
-// Main
 const UrlList: { [key: string]: string[] } = {
   S21: [
     "https://www.backmarket.de/de-de/p/samsung-galaxy-s21-5g-128-gb-grau-ohne-vertrag/15ad458f-c997-4391-ac91-0fa85a007129",
@@ -294,229 +229,248 @@ const UrlList: { [key: string]: string[] } = {
   ],
 };
 
-export function checkAndMakeStats(history: IItem[]): IStats[] {
-  // Convert values to numbers and merge arrays
-  const data = history.map((item) => ({
-    ...item,
-    gut: item.gut ? parseInt(item.gut) : undefined,
-    sehr_gut: item.sehr_gut ? parseInt(item.sehr_gut) : undefined,
-    hervorragend: item.hervorragend ? parseInt(item.hervorragend) : undefined,
-    premium: item.premium ? parseInt(item.premium) : undefined,
-  }));
+// Setup logging once
+const setupLogging = () => {
+  const logFormatter = (record: log.LogRecord): string =>
+    `${record.datetime.toISOString()}: [${record.levelName}] ${record.msg}`;
 
-  // Define groupedData with a specific type to avoid implicit any errors
-  const groupedData = data.reduce<Record<string, IItem[]>>((acc, item) => {
-    if (!acc[item.id]) {
-      acc[item.id] = [];
-    }
-    acc[item.id].push(item);
+  log.setup({
+    handlers: {
+      console: new log.ConsoleHandler("DEBUG", { formatter: logFormatter }),
+      file: new log.FileHandler("DEBUG", {
+        filename: "./debug.log",
+        formatter: logFormatter,
+      }),
+    },
+    loggers: {
+      default: {
+        level: "DEBUG",
+        handlers: ["console", "file"],
+      },
+    },
+  });
+};
+
+// Utility functions
+const timeout = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+const getEuros = (input: string): string | undefined => {
+  const value = Number(input.match(/[\d,]/g)?.join("").replace(",", "."));
+  return isNaN(value) ? undefined : String(Math.round(value));
+};
+
+const ensureDebugDir = async (): Promise<void> => {
+  try {
+    await Deno.readDir(CONFIG.debugDir);
+  } catch {
+    await Deno.mkdir(CONFIG.debugDir);
+  }
+};
+
+// File operations with error handling
+async function readCsvFile<T>(
+  fileName: string,
+  columns: ParseOptions["columns"]
+): Promise<T[]> {
+  try {
+    const content = await Deno.readTextFile(fileName);
+    return parse(content, { columns, separator: ";" }) as T[];
+  } catch (error) {
+    log.warn(`Error reading ${fileName}: ${error}`);
+    await timeout(2000);
+    await Deno.writeTextFile(
+      fileName,
+      stringify([], { columns, separator: ";" })
+    );
+    return readCsvFile(fileName, columns);
+  }
+}
+
+async function writeCsvFile<T>(
+  fileName: string,
+  data: readonly DataItem[],
+  columns?: StringifyOptions["columns"],
+  headers = false
+): Promise<void> {
+  await Deno.writeTextFile(
+    resolve(import.meta.dirname ? import.meta.dirname : "", "../../", fileName),
+    stringify(data, { columns, headers, separator: ";" })
+  );
+}
+
+// Core functionality
+async function fetchPageData(url: string): Promise<string> {
+  const response = await fetch(url, {
+    method: "OPTIONS",
+    cache: "no-cache",
+  });
+  return await response.text();
+}
+
+function processQualityData(
+  qualityEls: HTMLCollection
+): Record<string, string | undefined> {
+  const amounts: string[] = [];
+
+  for (const quality of qualityEls) {
+    const amount = getEuros(quality.innerText);
+    if (amount) amounts.push(amount);
+  }
+
+  return {
+    gut: amounts[0],
+    sehr_gut: amounts[1],
+    hervorragend: amounts[2],
+    premium: amounts[3],
+  };
+}
+
+function calculateStats(history: IItem[]): IStats[] {
+  const groupedData = history.reduce<Record<string, IItem[]>>((acc, item) => {
+    (acc[item.id] = acc[item.id] || []).push(item);
     return acc;
   }, {});
 
-  // Get the lowest values for each id along with timestamp, name, and url, formatted for CSV
-  const lowestValues = Object.entries(groupedData).map(([id, entries]) => {
-    const getLowestValue = (quality: keyof IItem) => {
-      const minEntry = entries.reduce((min, entry) =>
-        entry[quality] > 0 && entry[quality] < min[quality] ? entry : min
+  return Object.entries(groupedData).map(([id, entries]) => {
+    const getLowestValue = (
+      quality: keyof Pick<
+        IItem,
+        "gut" | "sehr_gut" | "hervorragend" | "premium"
+      >
+    ) => {
+      const validEntries = entries.filter(
+        (entry) => Number(entry[quality]) > 0
+      );
+      if (!validEntries.length)
+        return { value: 0, timestamp: "", name: "", url: "" };
+
+      const minEntry = validEntries.reduce((min, entry) =>
+        Number(entry[quality]) < Number(min[quality]) ? entry : min
       );
 
       return {
-        value: minEntry[quality],
+        value: Number(minEntry[quality]),
         timestamp: minEntry.timestamp,
         name: minEntry.name,
         url: minEntry.url,
       };
     };
 
-    const out = {
-      id,
-      url: entries[0].url, // Use the URL of the first entry for the ID
+    const qualities = ["gut", "sehr_gut", "hervorragend", "premium"] as const;
+    const stats = qualities.reduce((acc, quality) => {
+      const { value, timestamp, name, url } = getLowestValue(quality);
+      return {
+        ...acc,
+        [quality]: value,
+        [`${quality}_timestamp`]: timestamp,
+        [`${quality}_name`]: name,
+        [`${quality}_url`]: url,
+      };
+    }, {} as Partial<IStats>);
 
-      // Populate fields for each quality
-      gut: getLowestValue("gut").value,
-      gut_timestamp: getLowestValue("gut").timestamp,
-      gut_name: getLowestValue("gut").name,
-      gut_url: getLowestValue("gut").url,
-
-      sehr_gut: getLowestValue("sehr_gut").value,
-      sehr_gut_timestamp: getLowestValue("sehr_gut").timestamp,
-      sehr_gut_name: getLowestValue("sehr_gut").name,
-      sehr_gut_url: getLowestValue("sehr_gut").url,
-
-      hervorragend: getLowestValue("hervorragend").value,
-      hervorragend_timestamp: getLowestValue("hervorragend").timestamp,
-      hervorragend_name: getLowestValue("hervorragend").name,
-      hervorragend_url: getLowestValue("hervorragend").url,
-
-      premium: getLowestValue("premium").value,
-      premium_timestamp: getLowestValue("premium").timestamp,
-      premium_name: getLowestValue("premium").name,
-      premium_url: getLowestValue("premium").url,
-    };
-
-    return out;
+    return { id, url: entries[0].url, ...stats } as IStats;
   });
-
-  return lowestValues;
 }
 
-export async function handler(
+async function handlePageProcessing(
   id: string,
   url: string,
   dataOverwrite?: string
 ): Promise<IItem | undefined> {
-  const t1 = performance.now();
+  const startTime = performance.now();
   const timestamp = new Date().toISOString();
-  let data = dataOverwrite;
 
-  if (!dataOverwrite) {
-    const res = await fetch(url, {
-      method: "OPTIONS",
-      cache: "no-cache",
-    });
-    data = await res.text();
-  }
+  try {
+    const data = dataOverwrite || (await fetchPageData(url));
+    if (!data) throw new Error("No data received");
 
-  if (!data) {
-    log.error(`Data missing`);
-    return;
-  }
-
-  if (data.includes("bot-need-challenge")) {
-    log.warn(
-      "Bot detected, cooling off for 2 h. Or goto https://www.backmarket.de/testchallengepage and restart."
-    );
-    if (!dataOverwrite) {
-      await Deno.writeTextFile(
-        import.meta.dirname +
-          `/debug/bot-detected-${`${timestamp}-${url}`.replace(
-            /\W/g,
-            "-"
-          )}.html`,
-        data
-      );
-    }
-    await timeout(7200000);
-    return await handler(id, url, dataOverwrite);
-  }
-
-  const pageId = url.split("/").pop();
-  const doc = new DOMParser().parseFromString(data, "text/html");
-  const qualityEls = doc.querySelector(queryQuality)?.children;
-  const title = doc.querySelectorAll(
-    `[data-test="container-wrapper"] .heading-1`
-  )?.[0]?.innerText;
-
-  if (!title) {
-    log.warn(`No title found for ${url} ${data}`);
-
-    if (!dataOverwrite) {
-      await Deno.writeTextFile(
-        import.meta.dirname +
-          `/debug/no-title-found-${`${timestamp}-${url}`.replace(
-            /\W/g,
-            "-"
-          )}.html`,
-        data
-      );
+    if (data.includes("bot-need-challenge")) {
+      log.warn("Bot detected, cooling off...");
+      await timeout(CONFIG.botCooldownTime);
+      return handlePageProcessing(id, url, dataOverwrite);
     }
 
-    return;
-  }
+    const doc = new DOMParser().parseFromString(data, "text/html");
+    const qualityEls = doc.querySelector(CONFIG.queryQuality)?.children;
+    const title = doc.querySelector(
+      '[data-test="container-wrapper"] .heading-1'
+    )?.innerText;
 
-  if (title.includes("Oh Oh ... da ist wohl etwas schief gelaufen")) {
-    log.warn("Error happend, cooling off for 5 minutes");
-    await timeout(300000);
-    return await handler(id, url, dataOverwrite);
-  }
+    if (!title) {
+      throw new Error("No title found");
+    }
 
-  if (qualityEls) {
-    const out: Partial<IItem> = {
+    if (title.includes("Oh Oh ... da ist wohl etwas schief gelaufen")) {
+      await timeout(CONFIG.errorCooldownTime);
+      return handlePageProcessing(id, url, dataOverwrite);
+    }
+
+    if (!qualityEls) {
+      throw new Error("No quality elements found");
+    }
+
+    const qualityData = processQualityData(qualityEls);
+    const item: IItem = {
       id,
       url,
       timestamp,
       name: title,
+      ...qualityData,
     };
 
-    const amounts = [];
-
-    for (const quality of qualityEls) {
-      const amount = getEuros(quality.innerText);
-
-      if (!amount) {
-        // Ausverkauft
-        const t2 = performance.now();
-        log.debug(`${pageId} ${title} 🟠 ${quality.innerText} (${t2 - t1} ms)`);
-      } else {
-        amounts.push(amount);
-      }
-    }
-
-    out.gut = amounts[0];
-    out.sehr_gut = amounts[1];
-    out.hervorragend = amounts[2];
-    out.premium = amounts[3];
-
-    const t2 = performance.now();
-    log.debug(`${pageId} ${title} ✅ (${t2 - t1} ms)`);
-    return out as IItem;
-  } else {
-    const t2 = performance.now();
-    log.error(
-      `${pageId} ${title} ❌ No quality found ${qualityEls} (${t2 - t1} ms)`
-    );
-
-    if (!dataOverwrite) {
-      await Deno.writeTextFile(
-        import.meta.dirname +
-          `/debug/no-quality-found-${`${timestamp}-${url}`.replace(
-            /\W/g,
-            "-"
-          )}.html`,
-        data
-      );
-    }
+    log.debug(`Processed ${url} in ${performance.now() - startTime}ms`);
+    return item;
+  } catch (error) {
+    log.error(`Error processing ${url}: ${error.message}`);
+    return undefined;
   }
 }
 
-export async function main(repeat = false) {
-  const t1 = performance.now();
-  log.debug("Booting up");
+export async function main(repeat = false): Promise<void> {
+  const startTime = performance.now();
+  setupLogging();
+  await ensureDebugDir();
 
   try {
-    await Deno.readDir(import.meta.dirname + "/debug/");
-  } catch {
-    await Deno.mkdir(import.meta.dirname + "/debug/");
-  }
+    const history = await readCsvFile<IItem>(
+      CONFIG.historyFileName,
+      itemColumns
+    );
 
-  const history = await getHistory();
+    for (const [product, urls] of Object.entries(UrlList)) {
+      for (const [i, url] of urls.entries()) {
+        if (i !== 0 && repeat) {
+          await timeout(CONFIG.cooldownTime);
+        }
 
-  for (const product of Object.keys(UrlList)) {
-    const urls = UrlList[product];
-
-    for (const [i, url] of urls.entries()) {
-      if (i !== 0 && repeat) {
-        log.debug("1 min cool down");
-        await timeout(60000);
-      }
-
-      const data = await handler(product, url);
-      if (data) {
-        history.push(data);
-        await putHistory(history);
-        await putStats(checkAndMakeStats(history.slice(1)));
+        const data = await handlePageProcessing(product, url);
+        if (data) {
+          history.push(data);
+          await writeCsvFile(CONFIG.historyFileName, history, itemColumns);
+          await writeCsvFile(
+            CONFIG.statsFileName,
+            calculateStats(history.slice(1)),
+            statsColumns,
+            true
+          );
+        }
       }
     }
-  }
 
-  const t2 = performance.now();
-  log.debug(
-    `Done. This took ${Math.round((t2 - t1) / 1000)} s. ${
-      repeat ? "" : "Waiting..."
-    }`
-  );
+    const duration = Math.round((performance.now() - startTime) / 1000);
+    log.debug(
+      `Completed in ${duration}s. ${repeat ? "Restarting..." : "Waiting..."}`
+    );
 
-  if (repeat) {
-    main(true);
+    if (repeat) {
+      main(true);
+    }
+  } catch (error) {
+    log.error(`Main process error: ${error.message}`);
+    if (repeat) {
+      await timeout(CONFIG.errorCooldownTime);
+      main(true);
+    }
   }
 }
