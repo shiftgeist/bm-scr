@@ -317,7 +317,7 @@ export function checkAndMakeStats(history: IItem[]): IStats[] {
   const lowestValues = Object.entries(groupedData).map(([id, entries]) => {
     const getLowestValue = (quality: keyof IItem) => {
       const minEntry = entries.reduce((min, entry) =>
-        entry[quality] < min[quality] ? entry : min
+        entry[quality] > 0 && entry[quality] < min[quality] ? entry : min
       );
 
       return {
