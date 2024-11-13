@@ -120,13 +120,14 @@ async function getCsv(fileName: string, columns: ParseOptions["columns"]) {
 async function putCsv(
   fileName: string,
   data: Record<string, unknown>[],
-  columns?: StringifyOptions["columns"]
+  columns?: StringifyOptions["columns"],
+  headers = false
 ) {
   await Deno.writeTextFile(
     fileName,
     stringify(data, {
       columns,
-      headers: false,
+      headers,
       separator: ";",
     })
   );
@@ -145,7 +146,7 @@ export async function putHistory(history) {
 }
 
 export async function putStats(stats) {
-  await putCsv(statsFileName, stats, statsColumns);
+  await putCsv(statsFileName, stats, statsColumns, true);
 }
 
 // Main
@@ -369,7 +370,10 @@ export async function handler(
   let data = dataOverwrite;
 
   if (!dataOverwrite) {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      method: "OPTIONS",
+      cache: "no-cache",
+    });
     data = await res.text();
   }
 
@@ -481,7 +485,7 @@ export async function main(repeat = false) {
 
   try {
     await Deno.readDir(import.meta.dirname + "/debug/");
-  } catch (error) {
+  } catch {
     await Deno.mkdir(import.meta.dirname + "/debug/");
   }
 
@@ -500,10 +504,9 @@ export async function main(repeat = false) {
       if (data) {
         history.push(data);
         await putHistory(history);
+        await putStats(checkAndMakeStats(history.slice(1)));
       }
     }
-
-    await putStats(checkAndMakeStats(history.slice(1)));
   }
 
   const t2 = performance.now();
